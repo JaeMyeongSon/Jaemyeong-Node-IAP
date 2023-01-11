@@ -1,19 +1,12 @@
-# In-app purchase verification
-
-Inspired by the [iap_verifier](https://github.com/pcrawfor/iap_verifier/) CoffeeScript module
-written by Paul Crawford, I wanted a pure JavaScript implementation of in-app purchase verification.
-I also wanted to add support for other app stores, and not just limit this to Apple. The `iap`
-module is exactly that. Pull requests to add support for other platforms are very welcome!
-
-## Installation
+# 인앱 구매 인증
+ 
+## 설치
 
 ```sh
-npm install iap
+npm i jaemyeongson-node-iap
 ```
 
-## Usage
-
-### Initialisation
+## 사용법
 
 ```javascript
 var iap = require('iap');
@@ -31,9 +24,9 @@ var payment = {
 };
 ```
 
-### Purchase verification ( all platforms )
+### 구매 인증 ( 모든 플랫폼 )
 
-A method is exposed to verify purchase receipts:
+구매 영수증을 확인하는 방법이 노출됩니다.
 
 ```javascript
 iap.verifyPayment(platform, payment, function (error, response) {
@@ -41,7 +34,7 @@ iap.verifyPayment(platform, payment, function (error, response) {
 });
 ```
 
-Or, if you prefer a promise-based alternative: 
+promise-based 방식을 선호하는 경우 : 
 
 ```javascript
 iap.verifyPayment(platform, payment)
@@ -55,15 +48,13 @@ iap.verifyPayment(platform, payment)
 )
 ```
 
-The receipt you pass must conform to the requirements of the backend you are verifying with. Read
-the next chapter for more information on the format.
+전달하는 영수증은 확인하려는 백엔드의 요구 사항을 준수해야 합니다.
+형식에 대한 자세한 내용은 아래를 참조해주세요.
 
-### Subscription cancellation ( Google Play only )
+### 구독 취소(Google Play만 해당)
 
-Google exposes [an API for server side cancellation](https://developers.google.com/android-publisher/api-ref/purchases/subscriptions/cancel) of recurring suscriptions. This might be
-be used to enable users to easily cancel subscriptions from within the app ( without going
-to Play Store ), or to allow subscriptions to be canceled by support people when users request
-it ( when for some reason the users are unable or unwilling to do so themselves).
+Google은 반복 구독의 [서버 측 취소를 위한 API](https://developers.google.com/android-publisher/api-ref/purchases/subscriptions/cancel)를 노출합니다. 이것은
+사용자가 앱 내에서 구독을 쉽게 취소할 수 있도록 하는 데 사용됩니다(Play 스토어로 ) 또는 사용자 요청 시 지원 담당자가 구독을 취소하도록 허용
 
 ```javascript
 iap.cancelSubscription("google", payment, function (error, response) {
@@ -71,7 +62,7 @@ iap.cancelSubscription("google", payment, function (error, response) {
 });
 ```
 
-Or, if you prefer a promise-based alternative: 
+promise-based 방식을 선호하는 경우: 
 
 ```javascript
 iap.cancelSubscription(platform, payment)
@@ -85,58 +76,22 @@ iap.cancelSubscription(platform, payment)
 )
 ```
 
-## Supported platforms
-
-### Amazon
-
-**The payment object**
-
-The receipt string represents the transaction returned from a channel or product
-purchase.
-
-A Shared secret and user ID is required.
-
-**The response**
-
-The response passed back to your callback will also be Amazon specific. The entire parsed receipt
-will be in the result object:
-
-```json
-{
-	"receipt": {
-		"betaProduct": false,
-		"cancelDate": null,
-		"parentProductId": null,
-		"productId": "com.amazon.iapsamplev2.gold_medal",
-		"productType": "CONSUMABLE",
-		"purchaseDate": 1399070221749,
-		"quantity": 1,
-		"receiptId": "wE1EG1gsEZI9q9UnI5YoZ2OxeoVKPdR5bvPMqyKQq5Y=:1:11",
-		"renewalDate": null,
-		"term": null,
-		"termSku": null,
-		"testTransaction": false
-	},
-	"transactionId": "wE1EG1gsEZI9q9UnI5YoZ2OxeoVKPdR5bvPMqyKQq5Y=:1:11",
-	"productId": "com.amazon.iapsamplev2.gold_medal",
-	"platform": "amazon"
-}
-```
+## 지원 
 
 ### Apple
 
 **The payment object**
 
-The receipt string passed may be either the base64 string that Apple really wants, or the decoded
-receipt as returned by the iOS SDK (in which case it will be automatically base64 serialized).
+전달된 영수증 문자열은 Apple이 실제로 원하는 base64 문자열이거나 디코딩된 문자열일 수 있습니다.
+iOS SDK에서 반환한 영수증(이 경우 자동으로 base64 직렬화됨).
 
-Both productId and packageName (bundle ID) are optional, but when provided will be tested against.
-If the receipt does not match the provided values, an error will be returned.
+productId 및 packageName(번들 ID)은 모두 선택 사항이지만 제공된 경우 테스트됩니다.
+영수증이 제공된 값과 일치하지 않으면 오류가 반환됩니다.
 
-To verify auto-renewable subscriptions you need to provide `secret` field that
-contains your In-App Purchase Shared Secret
+자동 갱신 구독을 확인하려면 '비밀' 필드를 제공해야 합니다.
+인앱 구매 공유 비밀을 포함합니다.
 
-Apple supports returning only the most recent transaction for auto-renewable subscriptions via their [exclude-old-transactions](https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html) option. This can greatly save on bandwidth for users that have more than one transaction. To enable this, pass `excludeOldTransactions` on the payment object:
+Apple은 [exclude-old-transactions](https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html) 옵션을 통해 자동 갱신 구독에 대한 가장 최근 트랜잭션만 반환하도록 지원합니다. . 이것은 둘 이상의 트랜잭션이 있는 사용자의 대역폭을 크게 절약할 수 있습니다. 이를 활성화하려면 지불 객체에 `excludeOldTransactions`를 전달하십시오.:
 
 ```javascript
 let payment = {
@@ -147,11 +102,9 @@ let payment = {
 
 **The response**
 
-The response passed back to your callback will also be Apple specific. The entire parsed receipt
-will be in the result object. Applications that support monthly and yearly
-subscription access will represent auto-renewable terms in either the `in_app`
-or `latestReceiptInfo` property.
-
+콜백으로 다시 전달되는 응답도 Apple에 따라 다릅니다. 파싱된 전체 영수증
+결과 개체에 있습니다. 월간 및 연간을 지원하는 애플리케이션
+구독 액세스는 `in_app` 또는 `latestReceiptInfo` 속성.
 ```json
 {
 	"receipt": {
@@ -230,18 +183,18 @@ or `latestReceiptInfo` property.
 
 **The payment object**
 
-The receipt string is the purchase token that Google Play returns to the mobile application when a purchase is made.
+영수증 문자열은 구매 시 Google Play가 모바일 애플리케이션에 반환하는 구매 토큰입니다.
 
-Both packageName and productId are compulsory.
+packageName과 productId는 모두 필수입니다.
 
-Lastly you must provide `keyObject` which is the Google API Service Account JSON key file linked to your Google Play
-account for authentication. This property can be either a string, file buffer or an object. If provided a string or file
-buffer, the call will automatically parse it into an object for use.
+마지막으로 Google Play에 연결된 Google API 서비스 계정 JSON 키 파일인 `keyObject`를 제공해야 합니다.
+인증을 위한 계정. 이 속성은 문자열, 파일 버퍼 또는 개체일 수 있습니다. 문자열이나 파일이 제공된 경우
+버퍼, 호출은 자동으로 사용할 개체로 구문 분석합니다.
 
-**The response**
+**응답**
 
-The response passed back to your callback will also be Google Play specific. The entire parsed response will be in the
-receipt sub-object.
+콜백으로 다시 전달되는 응답도 Google Play에 따라 달라집니다. 구문 분석된 전체 응답은
+영수증 하위 객체.
 
 ```json
 {
@@ -258,115 +211,6 @@ receipt sub-object.
 }
 ```
 
-### Roku
-
-The receiept string represents the transaction returned from a channel or
-product purchase.
-
-A developer ID is required.
-
-**The response**
-
-The response passed back to your callback will also be Roku specific. The entire
-parsed receipt will be in the result object:
-
-```json
-{
-	"receipt": {
-		"errorCode": null,
-		"errorDetails": null,
-		"errorMessage": "",
-		"status": 0,
-		"amount": 4.99,
-		"cancelled": false,
-		"channelId": 70391,
-		"channelName": "abc",
-		"couponCode": null,
-		"currency": "usd",
-		"expirationDate": 1488337344000,
-		"originalPurchaseDate": 1483153344000,
-		"partnerReferenceId": null,
-		"productId": "5KAZUPGB.0RF0",
-		"productName": "BASIC - US MONTHLY",
-		"purchaseDate": 1483153344000,
-		"quantity": 1,
-		"rokuCustomerId": "5e56c4c4d7d1504f813c630c2790e54a",
-		"tax": 0,
-		"total": 0,
-		"transactionId": "380e9932-ed9a-48e8-bd66-a6ec00b5efd1"
-	},
-	"transactionId": "380e9932-ed9a-48e8-bd66-a6ec00b5efd1",
-	"productId": "abc",
-	"platform": "roku"
-}
-```
-
-### All Platforms
-
-Regardless of the platform used, besides the platform-specific receipt, the following properties
-will be included:
-
-| Property | Type | Description |
-| --- | --- | --- |
-| receipt | object | Data returned by platforms |
-| platform | string | One of: 'apple', 'google', 'amazon', 'roku' |
-| productId | string | Id of the product |
-| transactionId | string | Id to uniquely identify transaction |
-| purchaseDate | int | Date of purchase in millis  |
-| expirationDate | int | Date of expiration in millis |
-
-
 ## License
 
 MIT
-
-## References
-
-### Amazon References
-**Code Inspiration**
-
- * https://github.com/may215/amazon_iap
-
-**API Reference**
-
- * https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs-v2/verifying-receipts-in-iap
-
-### Apple References
-**Code Inspiration**
-
- * https://github.com/pcrawfor/iap_verifier
-
-**API Reference**
-
- * 	https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html
-
-### Google Play References
-**Code Inspiration**
-
- * https://www.npmjs.com/package/google-play-purchase-validator
- * https://github.com/machadogj/node-google-bigquery
- * https://github.com/extrabacon/google-oauth-jwt/blob/master/lib/request-jwt.js
-
-**API Reference**
-
- * https://developer.android.com/google/play/billing/gp-purchase-status-api.html
- * https://developers.google.com/android-publisher/
- * https://developers.google.com/android-publisher/getting_started
- * https://developers.google.com/android-publisher/authorization
- * https://developers.google.com/accounts/docs/OAuth2ServiceAccount
- * https://developers.google.com/android-publisher/api-ref/purchases/products
- * https://developers.google.com/android-publisher/api-ref/purchases/products/get
- * http://developer.android.com/google/play/billing/billing_testing.html
- * http://stackoverflow.com/questions/24323207/use-service-account-to-verify-google-inapppurchase
-
-**Receipt Generation**
-
- * http://developer.android.com/training/in-app-billing/preparing-iab-app.html
- * http://developer.android.com/tools/publishing/app-signing.html
- * http://developer.android.com/google/play/billing/api.html#managed
-
-### Roku References
-
-**API Reference**
-
- * https://sdkdocs.roku.com/display/sdkdoc/Web+Service+API#WebServiceAPI-/listen/transaction-service.svc/validate-transaction/{devtoken}/{transactionid}
